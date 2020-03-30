@@ -34,11 +34,20 @@ begin
               .CNPJ(CNPJ)
               .Usuario(Usuario)
               .EAN(EAN)
-             .Consultar;
+              .Consultar;
+end;
+
+function ConsultaStatus(
+  const BaseURL: WideString) : Boolean;
+begin
+  Result :=
+    TConsulta.New
+             .BaseURL(BaseURL)
+             .ConsultarStatus;
 end;
 
 exports
-  ConsultarEAN;
-
+  ConsultarEAN,
+  ConsultaStatus;
 begin
 end.

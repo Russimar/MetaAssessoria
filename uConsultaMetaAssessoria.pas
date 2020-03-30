@@ -30,6 +30,7 @@ type
     function EAN(const Value: string): IConsulta; overload;
     function EAN: string; overload;
     function Consultar: TProduto;
+    function ConsultarStatus : Boolean;
     procedure ProcessProdutoRead(Produtos : TProduto; jtr : TJsonReader);
   End;
 
@@ -59,6 +60,7 @@ type
     function EAN(const Value: string): IConsulta; overload;
     function EAN: string; overload;
     function Consultar: TProduto;
+    function ConsultarStatus : Boolean;
     procedure ProcessProdutoRead(Produtos : TProduto; jtr : TJsonReader);
   End;
 
@@ -264,6 +266,36 @@ begin
     FreeAndNil(RESTClient);
   end;
   Result := eProduto;
+end;
+
+function TConsulta.ConsultarStatus: Boolean;
+var
+  RESTClient: TRESTClient;
+  RESTRequest: TRESTRequest;
+  RESTResponse: TRESTResponse;
+begin
+  RESTClient := TRESTClient.Create(nil);
+  try
+    RESTRequest := TRESTRequest.Create(nil);
+    try
+      RESTResponse := TRESTResponse.Create(nil);
+      try
+        RESTRequest.Client := RESTClient;
+        RESTRequest.Response := RESTResponse;
+        RESTClient.BaseURL := FBaseURL;
+        RESTClient.ContentType := 'application/x-www-form-urlencoded';
+        RESTRequest.Method := TRESTRequestMethod.rmPOST;
+        RESTRequest.Execute;
+        Result := RESTResponse.StatusCode = 200
+      finally
+        FreeAndNil(RESTResponse);
+      end;
+    finally
+      FreeAndNil(RESTRequest);
+    end;
+  finally
+    FreeAndNil(RESTClient);
+  end;
 end;
 
 function TConsulta.CNPJ(const Value: string): IConsulta;
