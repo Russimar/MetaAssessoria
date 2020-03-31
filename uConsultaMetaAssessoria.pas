@@ -198,6 +198,24 @@ begin
           eProduto.RedBaseICMS := jtr.Value.AsString;
         end;
 
+        if jtr.Value.ToString = 'tribRegraPisCst' then
+        begin
+          jtr.Read;
+          eProduto.CSTPIS := jtr.Value.AsString;
+        end;
+
+        if jtr.Value.ToString = 'fisRegraCofinsCst' then
+        begin
+          jtr.Read;
+          eProduto.CSTCofins := jtr.Value.AsString;
+        end;
+
+        if jtr.Value.ToString = 'resultadoConsulta' then
+        begin
+          jtr.Read;
+          eProduto.ResultadoConsulta := jtr.Value.AsString;
+        end;
+
 //        if jtr.TokenType = TJsonToken.EndObject then
 //        begin
 //          Result := eProduto;
