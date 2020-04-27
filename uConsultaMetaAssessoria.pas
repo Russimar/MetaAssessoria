@@ -8,15 +8,15 @@ uses
   Data.Bind.ObjectScope,
   REST.Client,
   System.SysUtils,
-  Rest.Json,
-  System.JSON.Readers,
+  REST.Json,
+  System.Json.Readers,
   uProduto,
-  System.JSON.Types,
+  System.Json.Types,
   System.Classes;
 
 type
   IConsulta = Interface(IInterface)
-  ['{0E911E20-D972-4862-B15E-CB362C023A89}']
+    ['{0E911E20-D972-4862-B15E-CB362C023A89}']
     function BaseURL(const Value: string): IConsulta; overload;
     function BaseURL: string; overload;
     function Token(const Value: string): IConsulta; overload;
@@ -30,8 +30,8 @@ type
     function EAN(const Value: string): IConsulta; overload;
     function EAN: string; overload;
     function Consultar: TProduto;
-    function ConsultarStatus : Boolean;
-    procedure ProcessProdutoRead(Produtos : TProduto; jtr : TJsonReader);
+    function ConsultarStatus: Boolean;
+    procedure ProcessProdutoRead(Produtos: TProduto; jtr: TJsonReader);
   End;
 
   TConsulta = class(TInterfacedObject, IConsulta)
@@ -43,8 +43,8 @@ type
     FUsuario: string;
     FEAN: string;
   private
-    procedure CreateParam(const RESTRequest: TRESTRequest; const ParamName,
-      ParamValue: string);
+    procedure CreateParam(const RESTRequest: TRESTRequest;
+      const ParamName, ParamValue: string);
   public
     class function New: IConsulta;
     function BaseURL(const Value: string): IConsulta; overload;
@@ -60,15 +60,15 @@ type
     function EAN(const Value: string): IConsulta; overload;
     function EAN: string; overload;
     function Consultar: TProduto;
-    function ConsultarStatus : Boolean;
-    procedure ProcessProdutoRead(Produtos : TProduto; jtr : TJsonReader);
+    function ConsultarStatus: Boolean;
+    procedure ProcessProdutoRead(Produtos: TProduto; jtr: TJsonReader);
   End;
 
 implementation
 
 { TConsulta }
 var
- eProduto : Tproduto;
+  eProduto: TProduto;
 
 function TConsulta.Ambiente(const Value: string): IConsulta;
 begin
@@ -156,6 +156,12 @@ begin
           eProduto.NCM := jtr.Value.AsString;
         end;
 
+        if jtr.Value.ToString = 'tributarioCest' then
+        begin
+          jtr.Read;
+          eProduto.CEST := jtr.Value.AsString;
+        end;
+
         if jtr.Value.ToString = 'produtoDiasValidade' then
         begin
           jtr.Read;
@@ -180,6 +186,12 @@ begin
           eProduto.Origem := jtr.Value.AsInteger;
         end;
 
+        if jtr.Value.ToString = 'tribRegraCfop' then
+        begin
+          jtr.Read;
+          eProduto.Cfop := jtr.Value.AsString;
+        end;
+
         if jtr.Value.ToString = 'tribIcmsCst' then
         begin
           jtr.Read;
@@ -201,13 +213,15 @@ begin
         if jtr.Value.ToString = 'tribRegraPisCst' then
         begin
           jtr.Read;
-          eProduto.CSTPIS := jtr.Value.AsString;
+          if copy(eProduto.Cfop, 1, 1) = '5' then
+            eProduto.CSTPIS := jtr.Value.AsString;
         end;
 
         if jtr.Value.ToString = 'fisRegraCofinsCst' then
         begin
           jtr.Read;
-          eProduto.CSTCofins := jtr.Value.AsString;
+          if copy(eProduto.Cfop, 1, 1) = '5' then
+            eProduto.CSTCofins := jtr.Value.AsString;
         end;
 
         if jtr.Value.ToString = 'resultadoConsulta' then
@@ -216,10 +230,10 @@ begin
           eProduto.ResultadoConsulta := jtr.Value.AsString;
         end;
 
-//        if jtr.TokenType = TJsonToken.EndObject then
-//        begin
-//          Result := eProduto;
-//        end;
+        // if jtr.TokenType = TJsonToken.EndObject then
+        // begin
+        // Result := eProduto;
+        // end;
       end;
     end;
   finally
@@ -237,11 +251,11 @@ var
   RESTClient: TRESTClient;
   RESTRequest: TRESTRequest;
   RESTResponse: TRESTResponse;
-//  eProdutos : TProduto;
-  sr : TStringReader;
-  jtr : TJsonTextReader;
+  // eProdutos : TProduto;
+  sr: TStringReader;
+  jtr: TJsonTextReader;
 begin
-//  eProduto := TProduto.Create;
+  // eProduto := TProduto.Create;
   RESTClient := TRESTClient.Create(nil);
   try
     RESTRequest := TRESTRequest.Create(nil);
@@ -265,7 +279,7 @@ begin
           try
             while jtr.Read do
             begin
-              if jtr.TokenType = TJsonToken.StartObject then
+              if jtr.TokenType = TjsonToken.StartObject then
                 ProcessProdutoRead(eProduto, jtr);
             end;
           finally
@@ -303,7 +317,11 @@ begin
         RESTClient.BaseURL := FBaseURL;
         RESTClient.ContentType := 'application/x-www-form-urlencoded';
         RESTRequest.Method := TRESTRequestMethod.rmPOST;
-        RESTRequest.Execute;
+        try
+          RESTRequest.Execute;
+        except
+          Result := False;
+        end;
         Result := RESTResponse.StatusCode = 200
       finally
         FreeAndNil(RESTResponse);

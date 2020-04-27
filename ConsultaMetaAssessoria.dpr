@@ -18,36 +18,23 @@ uses
 
 {$R *.res}
 
-function ConsultarEAN(
-  const BaseURL: WideString;
-  const Token: WideString;
-  const Ambiente: WideString;
-  const CNPJ: WideString;
-  const Usuario: WideString;
+function ConsultarEAN(const BaseURL: WideString; const Token: WideString;
+  const Ambiente: WideString; const CNPJ: WideString; const Usuario: WideString;
   const EAN: WideString): TProduto;
 begin
-  Result :=
-    TConsulta.New
-              .BaseURL(BaseURL)
-              .Token(Token)
-              .Ambiente(Ambiente)
-              .CNPJ(CNPJ)
-              .Usuario(Usuario)
-              .EAN(EAN)
-              .Consultar;
+  Result := TConsulta.New.BaseURL(BaseURL).Token(Token).Ambiente(Ambiente)
+    .CNPJ(CNPJ).Usuario(Usuario).EAN(EAN).Consultar;
 end;
 
-function ConsultaStatus(
-  const BaseURL: WideString) : Boolean;
+function ConsultaStatus(const BaseURL: WideString): Boolean;
 begin
-  Result :=
-    TConsulta.New
-             .BaseURL(BaseURL)
-             .ConsultarStatus;
+  Result := TConsulta.New.BaseURL(BaseURL).ConsultarStatus;
 end;
 
 exports
   ConsultarEAN,
   ConsultaStatus;
+
 begin
+
 end.
